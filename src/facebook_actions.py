@@ -77,6 +77,5 @@ def open_event_creation_form():
     try:
         driver.get("https://www.facebook.com/events/create/")
     except UnexpectedAlertPresentException:
-        driver.switch_to.alert.accept()
-
+        time.sleep(3)
         driver.get("https://www.facebook.com/events/create/")

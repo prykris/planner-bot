@@ -6,7 +6,7 @@ from random import choice
 from typing import Optional
 
 import pyperclip
-from selenium.common import TimeoutException, UnexpectedAlertPresentException
+from selenium.common import TimeoutException, UnexpectedAlertPresentException, NoAlertPresentException
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -186,7 +186,14 @@ if __name__ == "__main__":
             print(f'Creating event for city {event["city_ascii"]}, {event["admin_name"]} (ID: {event["id"]})...')
 
             try:
-                open_event_creation_form()
+                try:
+                    open_event_creation_form()
+                except UnexpectedAlertPresentException as e:
+                    driver.switch_to.alert.accept()
+                    print(
+                        'Unexpected alert while opening event creation form, pressing accept then sleeping for 3 '
+                        'seconds ...')
+                    time.sleep(3)
 
                 enter_event_name(event_name)
 
@@ -196,13 +203,21 @@ if __name__ == "__main__":
 
                 enter_time()
             except UnexpectedAlertPresentException:
+                try:
+                    driver.switch_to.alert.accept()
+                    print('Unexpected alert, pressing accept then sleeping for 3 seconds ...')
+                    time.sleep(3)
+                except NoAlertPresentException:
+                    print('Could not find an alert that caused the exception, failed to dismiss alert.')
+
                 print('Unexpected alert. Skipping this city.')
                 continue
             except TimeoutException as e:
                 print('Failed to find element in time. Skipping this city.')
                 print(e.msg)
                 continue
-            except:
+            except Exception as e:
+                print(e)
                 print('Unexpected error. Skipping this city.')
                 continue
 
@@ -240,6 +255,7 @@ if __name__ == "__main__":
                 print('Event created!')
 
             metadata['status'] = 'Submitted'
+            metadata['confirmed'] = should_click_create
             # if metadata['image'] is not None:
             # else:
             #     print('Aborting...')
