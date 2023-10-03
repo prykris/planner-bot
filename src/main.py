@@ -17,7 +17,7 @@ from facebook_actions import login_to_facebook, open_event_creation_form
 from selenium_buff import paste_content
 from inputs import prompt_confirmation
 from xpath_map import EVENT_NAME_INPUT, EVENT_DETAILS_TEXTAREA, DATE_INPUT, TIME_INPUT, VISIBILITY_DROPDOWN, \
-    IN_PERSON_OPTION, CREATE_EVENT_BUTTON
+    IN_PERSON_OPTION, CREATE_EVENT_BUTTON, END_DATE_BUTTON, TIME_END_INPUT, DATE_END_INPUT
 from storage import load_credentials, save_credentials
 
 from selenium.webdriver.support import expected_conditions as EC
@@ -44,7 +44,30 @@ def enter_date():
 
     date_input.click()
     date_input.send_keys(Keys.CONTROL + "a")
-    date_input.send_keys(event['partial_begin'].strftime("%b %d, %Y"))
+    date_input.send_keys(event['partial_begin_current'].strftime("%b %d, %Y"))
+    date_input.send_keys(Keys.RETURN)
+
+
+def enter_end_time():
+    time_input = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, TIME_END_INPUT))
+    )
+
+    time_input.click()
+
+    time_input.send_keys(Keys.CONTROL + "a")
+    time_input.send_keys(event['partial_end_current'].strftime("%I:%M %p"))
+    time_input.send_keys(Keys.RETURN)
+
+
+def enter_end_date():
+    date_input = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, DATE_END_INPUT))
+    )
+
+    date_input.click()
+    date_input.send_keys(Keys.CONTROL + "a")
+    date_input.send_keys(event['partial_end_current'].strftime("%b %d, %Y"))
     date_input.send_keys(Keys.RETURN)
 
 
@@ -145,6 +168,12 @@ def enter_location(city: str, state: str):
     write_location(city, state)
 
 
+def add_end_date():
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, END_DATE_BUTTON))
+    ).click()
+
+
 if __name__ == "__main__":
     print('Starting Event Planner Bot v0.1.0!')
 
@@ -202,6 +231,12 @@ if __name__ == "__main__":
                 enter_date()
 
                 enter_time()
+
+                add_end_date()
+
+                enter_end_date()
+
+                enter_end_time()
             except UnexpectedAlertPresentException:
                 try:
                     driver.switch_to.alert.accept()

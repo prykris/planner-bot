@@ -101,4 +101,5 @@ def details(event: dict) -> str:
         partial_end=event["partial_end"],
         city=event["city_ascii"],
         state=event["admin_name"],
+        timezone=event["timezone"],
     ).lstrip('\n')

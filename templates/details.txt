@@ -4,6 +4,7 @@ Attention, sky gazers and nature enthusiasts in {{ city }}! 🌌
 Mark your calendars for an extraordinary celestial phenomenon that will leave you in awe.
 Join us for the mesmerizing {{ city }} 2024 Total Solar Eclipse!
 
+🌐 Timezone: {{ timezone }}
 📅 Date: {{ partial_begin.strftime("%a, %b %d, %Y at %I:%M %p") }}
 ⏰ Time: {{ partial_begin.strftime("%I:%M %p") }} - {{ partial_end.strftime("%I:%M %p") }}
 📍 Location: {{ city }}, {{ state }}
@@ -25,5 +26,5 @@ How to Attend:
 1️⃣ RSVP to this event and invite your friends, family, and fellow eclipse enthusiasts.
 2️⃣ Remember to purchase solar eclipse glasses for safe viewing. Visit www.{{ domain }} for a list of trusted vendors or local stores where you can obtain certified glasses.
 
-📸 Don't forget to bring your cameras to capture the magic! Share your stunning eclipse photos with the hashtag {{ hashtag }} for a chance to be featured on our social media platforms.
+📸 Don't forget to bring your cameras to capture the magic! Share your stunning eclipse photos with the hashtag #{{ hashtag }} for a chance to be featured on our social media platforms.
 🌠 Let's come together to witness this awe-inspiring moment and celebrate the wonders of the universe! Spread the word, invite your loved ones, and get ready for an unforgettable solar eclipse experience.
