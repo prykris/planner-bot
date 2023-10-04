@@ -6,27 +6,25 @@ from random import choice
 from typing import Optional
 
 import pyperclip
-from selenium.common import TimeoutException, UnexpectedAlertPresentException, NoAlertPresentException
+from selenium.common import TimeoutException
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from tabulate import tabulate
 
 from driver_setup import driver
-from facebook_actions import login_to_facebook, open_event_creation_form
-from selenium_buff import paste_content
-from inputs import prompt_confirmation
-from xpath_map import EVENT_NAME_INPUT, EVENT_DETAILS_TEXTAREA, DATE_INPUT, TIME_INPUT, VISIBILITY_DROPDOWN, \
-    IN_PERSON_OPTION, CREATE_EVENT_BUTTON, END_DATE_BUTTON, TIME_END_INPUT, DATE_END_INPUT
-from storage import load_credentials, save_credentials
-
-from selenium.webdriver.support import expected_conditions as EC
-
 from events_db import events, name, details
+from facebook_actions import login_to_facebook
+from inputs import prompt_confirmation
+from selenium_buff import paste_content
+from storage import load_credentials, save_credentials
+from xpath_map import EVENT_NAME_INPUT, EVENT_DETAILS_TEXTAREA, DATE_INPUT, TIME_INPUT, VISIBILITY_DROPDOWN, \
+    IN_PERSON_OPTION, END_DATE_BUTTON, TIME_END_INPUT, DATE_END_INPUT
 
 
 def enter_time():
-    time_input = WebDriverWait(driver, 10).until(
+    time_input = WebDriverWait(driver, 3).until(
         EC.element_to_be_clickable((By.XPATH, TIME_INPUT))
     )
 
@@ -38,7 +36,7 @@ def enter_time():
 
 
 def enter_date():
-    date_input = WebDriverWait(driver, 10).until(
+    date_input = WebDriverWait(driver, 3).until(
         EC.element_to_be_clickable((By.XPATH, DATE_INPUT))
     )
 
@@ -49,7 +47,7 @@ def enter_date():
 
 
 def enter_end_time():
-    time_input = WebDriverWait(driver, 10).until(
+    time_input = WebDriverWait(driver, 3).until(
         EC.element_to_be_clickable((By.XPATH, TIME_END_INPUT))
     )
 
@@ -61,7 +59,7 @@ def enter_end_time():
 
 
 def enter_end_date():
-    date_input = WebDriverWait(driver, 10).until(
+    date_input = WebDriverWait(driver, 3).until(
         EC.element_to_be_clickable((By.XPATH, DATE_END_INPUT))
     )
 
@@ -71,30 +69,30 @@ def enter_end_date():
     date_input.send_keys(Keys.RETURN)
 
 
-def enter_event_name(event_name: str):
-    event_name_input = WebDriverWait(driver, 10).until(
+def enter_event_name(event_name_: str):
+    event_name_input = WebDriverWait(driver, 3).until(
         EC.element_to_be_clickable((By.XPATH, EVENT_NAME_INPUT))
     )
 
-    paste_content(driver, event_name_input, event_name)
+    paste_content(driver, event_name_input, event_name_)
 
 
-def enter_event_details(event_details: str):
-    details_input = WebDriverWait(driver, 10).until(
+def enter_event_details(event_details_: str):
+    details_input = WebDriverWait(driver, 3).until(
         EC.element_to_be_clickable((By.XPATH, EVENT_DETAILS_TEXTAREA))
     )
 
-    paste_content(driver, details_input, event_details)
+    paste_content(driver, details_input, event_details_)
 
 
 def event_in_person():
-    visibility_dropdown_element = WebDriverWait(driver, 10).until(
+    visibility_dropdown_element = WebDriverWait(driver, 3).until(
         EC.element_to_be_clickable((By.XPATH, VISIBILITY_DROPDOWN))
     )
 
     visibility_dropdown_element.click()
 
-    in_person_option_element = WebDriverWait(driver, 10).until(
+    in_person_option_element = WebDriverWait(driver, 3).until(
         EC.element_to_be_clickable((By.XPATH, IN_PERSON_OPTION))
     )
 
@@ -135,7 +133,7 @@ def upload_picture(image_path: str) -> None:
 
 def write_location(city, state, repeat=True):
     try:
-        input = WebDriverWait(driver, 10).until(
+        add_location_input = WebDriverWait(driver, 3).until(
             EC.element_to_be_clickable((By.XPATH, "//input[@aria-label='Add location']"))
         )
     except TimeoutException:
@@ -149,19 +147,19 @@ def write_location(city, state, repeat=True):
         prompt_confirmation("Is location set?")
         return
 
-    input.click()
+    add_location_input.click()
 
     time.sleep(2)
 
-    input.send_keys(f'{city}, {state}')
+    add_location_input.send_keys(f'{city}, {state}')
 
 
 def enter_location(city: str, state: str):
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 3).until(
         EC.element_to_be_clickable((By.XPATH, "//label[@aria-label='Is it in person or virtual?']"))
     ).click()
 
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 3).until(
         EC.element_to_be_clickable((By.XPATH, '//div[@role="option"][1]'))
     ).click()
 
@@ -169,7 +167,7 @@ def enter_location(city: str, state: str):
 
 
 def add_end_date():
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 3).until(
         EC.element_to_be_clickable((By.XPATH, END_DATE_BUTTON))
     ).click()
 
@@ -185,25 +183,43 @@ if __name__ == "__main__":
         email = input('Enter email: ')
         password = input('Enter password: ')
         save_credentials(email, password)
-        print('Credentials saved to credentials.json, delete this file to change or edit the file manually.')
+        print(
+            'Akreditācijas dati saglabāti failā "credentials.json". Lai mainītu vai rediģētu datus, dzēsiet šo failu '
+            'vai rediģējiet to manuāli.')
     else:
-        print('Credentials loaded from credentials.json. To switch accounts delete the file or edit it manually.')
+        print(
+            'Akreditācijas dati ielādēti no faila "credentials.json". Lai pārslēgtu kontus, dzēsiet failu vai '
+            'rediģējiet to manuāli.')
 
     try:
-        print(f'Logging into Facebook with email {email}...')
+        print(f'Ienākam Facebook ar e-pastu {email}...')
         # Login to Twitter
         if not login_to_facebook(email, password):
-            raise Exception('Login failed! Check your credentials.')
+            raise Exception('Ielogošanās neizdevās! Pārbaudiet savus akreditācijas datus.')
 
-        if not prompt_confirmation('Login successful! Manually switch the page.'):
+        if not prompt_confirmation('Ielogojies veiksmīgi! Manuāli pārslēdzies uz lapu.'):
             exit()
 
         for event, metadata, metadata_file in events('../events/filtered_events.json', 50000, 0.5):
             # Skip events that have already been completed or failed
             if not metadata['status'] == 'Pending':
-                print(
-                    f'Skipping city {event["city_ascii"]}, {event["admin_name"]} (ID: {event["id"]}) (Status: {metadata["status"]})')
+                # print(
+                #     f'Skipping city {event["city_ascii"]}, {event["admin_name"]} (ID: {event["id"]}) (Status: {metadata["status"]})')
                 continue
+            if prompt_confirmation('Lai atvērtu pasākumu izveides lapu nospiediet Enter'):
+                driver.get('https://facebook.com/events/create')
+            else:
+                print('Gaidam, kad atvērsies pasākumu izveides lapu: https://facebook.com/events/create.')
+
+            try:
+                WebDriverWait(driver, 1).until(EC.alert_is_present())
+
+                driver.switch_to.alert.accept()
+            except TimeoutException:
+                pass
+            WebDriverWait(driver, 60 * 60).until(
+                EC.url_contains('facebook.com/events/create')
+            )
 
             event_name = name(event)
             event_details = details(event)
@@ -212,96 +228,81 @@ if __name__ == "__main__":
             metadata['event_details'] = event_details
             metadata['image'] = select_random_image('../images')
 
-            print(f'Creating event for city {event["city_ascii"]}, {event["admin_name"]} (ID: {event["id"]})...')
-
-            try:
-                try:
-                    open_event_creation_form()
-                except UnexpectedAlertPresentException as e:
-                    driver.switch_to.alert.accept()
-                    print(
-                        'Unexpected alert while opening event creation form, pressing accept then sleeping for 3 '
-                        'seconds ...')
-                    time.sleep(3)
-
-                enter_event_name(event_name)
-
-                enter_event_details(event_details)
-
-                enter_date()
-
-                enter_time()
-
-                add_end_date()
-
-                enter_end_date()
-
-                enter_end_time()
-            except UnexpectedAlertPresentException:
-                try:
-                    driver.switch_to.alert.accept()
-                    print('Unexpected alert, pressing accept then sleeping for 3 seconds ...')
-                    time.sleep(3)
-                except NoAlertPresentException:
-                    print('Could not find an alert that caused the exception, failed to dismiss alert.')
-
-                print('Unexpected alert. Skipping this city.')
-                continue
-            except TimeoutException as e:
-                print('Failed to find element in time. Skipping this city.')
-                print(e.msg)
-                continue
-            except Exception as e:
-                print(e)
-                print('Unexpected error. Skipping this city.')
-                continue
-
-            enter_location(event['city_ascii'], event['admin_name'])
-
-            if metadata['image'] is not None:
-                upload_picture(metadata['image'])
-            else:
-                print('No image selected.')
+            print(f'Izveidojam pasākumu pilsētai {event["city_ascii"]}, {event["admin_name"]} (ID: {event["id"]})...')
 
             print(tabulate([
-                ["Latitude", "Longitude", "Begin (Local)", "Begin (Current)", "Timezone"],
-                [event['latitude'], event['longitude'], event['partial_begin'], event['partial_begin_current'],
-                 event['timezone']],
+                ["Latitude", "Longitude", event['timezone'], "Europe/Riga", "Timezone"],
+                [
+                    event['latitude'], event['longitude'], event['partial_begin'], event['partial_begin_current']
+                ],
+                [
+                    "", "", event['partial_end'], event['partial_end_current']
+                ]
             ], headers="firstrow", tablefmt="pipe"))
 
-            should_click_create = prompt_confirmation('Post the event?')
+            try:
+                enter_event_name(event_name)
+            except Exception:
+                print('Notika negaidīta kļūda ievadot pasākuma nosaukumu.')
 
-            if should_click_create:
-                try:
-                    create_event_button = WebDriverWait(driver, 60).until(
-                        EC.element_to_be_clickable((By.XPATH, CREATE_EVENT_BUTTON))
-                    )
+            try:
+                enter_event_details(event_details)
+            except Exception:
+                print('Notika negaidīta kļūda ievadot pasākuma tekstu.')
 
-                    create_event_button.click()
-                    time.sleep(5)
-                    print('Create event button clicked!')
-                except TimeoutException:
-                    print('Create event button missing. or you probably clicked it manually.')
-                    print('Therefore it will be considered as submitted event. Wait for the next one ...')
-                except:
-                    print('There was an unexpected error. If the event is not yet posted, post it manually.')
-                    prompt_confirmation('Can we continue?')
+            try:
+                enter_date()
+            except Exception:
+                print('Notika negaidīta kļūda ievadot pasākuma sākuma datumu.')
 
-                print('Event created!')
+            try:
+                enter_time()
+            except:
+                print('Notika negaidīta kļūda ievadot pasākuma sākuma laiku.')
 
-            metadata['status'] = 'Submitted'
-            metadata['confirmed'] = should_click_create
-            # if metadata['image'] is not None:
-            # else:
-            #     print('Aborting...')
-            #     # metadata["status"] = "Cancelled"
+            try:
+                add_end_date()
+            except:
+                print('Notika negaidīta kļūda pievienojot pasākumam beigu datumu.')
+
+            try:
+                enter_end_date()
+            except:
+                print('Notika negaidīta kļūda ievadot pasākuma beigu datumu.')
+
+            try:
+                enter_end_time()
+            except:
+                print('Notika negaidīta kļūda ievadot pasākuma beigu laiku.')
+
+            try:
+                enter_location(event['city_ascii'], event['admin_name'])
+            except:
+                print('Notika kļūda ievadot pasākuma vietu.')
+
+            try:
+                if metadata['image'] is not None:
+                    upload_picture(metadata['image'])
+                else:
+                    print('No image selected.')
+            except:
+                print('Notika kļūda ievadot pasākuma attēlu.')
+
+            event_posted = prompt_confirmation('Lai saglabātu šo pasākumu kā izveidotu, lūdzu nospiediet ENTER. '
+                                               'Pretējā gadījumā ievadiet \'N\' un tad nospiedet ENTER')
+
+            if event_posted:
+                metadata['status'] = 'Submitted'
+                print('Event posted!')
+            else:
+                metadata['status'] = 'Cancelled'
+                print('Event cancelled!')
+
+            metadata['confirmed'] = event_posted
 
             # Save the metadata
             with open(metadata_file, "w") as file:
                 json.dump(metadata, file)
-
-            if should_click_create:
-                time.sleep(10)
 
         time.sleep(5)
     except Exception as e:

@@ -14,16 +14,15 @@ DATE_INPUT = ('//input[@class="x1i10hfl xggy1nq x1s07b3s x1kdt53j x1a2a7pz xjbqb
 TIME_INPUT = ('//input[@class="x1i10hfl xggy1nq x1s07b3s x1kdt53j x1a2a7pz xjbqb8w x972fbf xcfux6l x1qhh985 xm0m39n '
               'x9f619 xzsf02u x1jchvi3 x1fcty0u x132q4wb x1a8lsjc x1pi30zi x1swvt13 x9desvi xh8yej3"]')
 
-DATE_END_INPUT = '//input[@id=":r1r:"]'
+DATE_END_INPUT = '(//input[@class="x1i10hfl xggy1nq x1s07b3s x1kdt53j x1a2a7pz xjbqb8w x76ihet xwmqs3e x112ta8 xxxdfa6 x9f619 xzsf02u x1jchvi3 x1fcty0u x132q4wb x1a8lsjc x1pi30zi x1swvt13 x9desvi xh8yej3"])[2]'
 
-TIME_END_INPUT = '//input[@id=":r20:"]'
+TIME_END_INPUT = '(//input[@class="x1i10hfl xggy1nq x1s07b3s x1kdt53j x1a2a7pz xjbqb8w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 xzsf02u x1jchvi3 x1fcty0u x132q4wb x1a8lsjc x1pi30zi x1swvt13 x9desvi xh8yej3"])[2]'
 
 END_DATE_BUTTON = '//div[@class="x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv x1qq9wsj"]'
 
 ATTEND_TYPE_DROPDOWN = ('//div[@class="xjyslct xjbqb8w x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x972fbf xcfux6l x1qhh985 '
                         'xm0m39n x9f619 xzsf02u x78zum5 x1jchvi3 x1fcty0u x132q4wb xdj266r x11i5rnm xat24cr x1mh8g0r '
                         'x1a2a7pz x9desvi x1pi30zi x1a8lsjc x1swvt13 x1n2onr6 x16tdsg8 xh8yej3 x1ja2u2z"]')
-
 
 VISIBILITY_DROPDOWN = ('//div[@class="xjyslct xjbqb8w x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x972fbf xcfux6l x1qhh985 '
                        'xm0m39n x9f619 xzsf02u x78zum5 x1jchvi3 x1fcty0u x132q4wb xdj266r x11i5rnm xat24cr x1mh8g0r '
@@ -39,8 +38,8 @@ IN_PERSON_OPTION = ('//div[@class="x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav
                     'x1y1aw1k xwib8y2"]')
 
 EVENT_DETAILS_TEXTAREA = ('//textarea[@class="x1i10hfl xggy1nq x1s07b3s xjbqb8w x76ihet xwmqs3e x112ta8 xxxdfa6 x9f619 '
-                   'xzsf02u x78zum5 x1jchvi3 x1fcty0u x132q4wb xyorhqc xaqh0s9 x1a2a7pz x6ikm8r x10wlt62 x1pi30zi '
-                   'x1swvt13 xtt52l0 xh8yej3"]')
+                          'xzsf02u x78zum5 x1jchvi3 x1fcty0u x132q4wb xyorhqc xaqh0s9 x1a2a7pz x6ikm8r x10wlt62 x1pi30zi '
+                          'x1swvt13 xtt52l0 xh8yej3"]')
 
 EDIT_IMAGE_BUTTON = '//div[contains(@aria-label, "Edit")]'
 
