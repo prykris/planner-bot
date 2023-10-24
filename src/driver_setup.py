@@ -13,6 +13,3 @@ def initialize_driver():
     chrome_options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
     return webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
-
-
-driver = initialize_driver()

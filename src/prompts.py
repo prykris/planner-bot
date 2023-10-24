@@ -1,12 +1,4 @@
-from enum import Enum
-
-
-class Language(Enum):
-    Latvian = 1
-    English = 2
-
-    def __str__(self):
-        return 'Latviešu' if self.value == 1 else 'Angļu'
+from language import Language
 
 
 def select_language():
@@ -25,7 +17,7 @@ def select_language():
             print("Kļūdaina izvēle. Lūdzu ievadiet tikai ciparu.")
 
 
-def prompt_confirmation(prompt, default="Y"):
+def confirm(prompt, default="Y"):
     while True:
         user_input = input(prompt + f" [{default}]: ").strip().upper()
 
