@@ -7,9 +7,6 @@ from typing import Any
 
 from jinja2 import Template
 
-def session(file_path: str):
-    sessions_directory = os.path.join("..\\sessions", os.path.splitext(os.path.basename(file_path))[0])
-
 
 def events(file_path, min_population=None, min_obscuration=None):
     try:

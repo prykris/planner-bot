@@ -1,5 +1,7 @@
 import json
 import os
+import shutil
+import tempfile
 from abc import ABC, abstractmethod
 
 
@@ -14,28 +16,35 @@ class MetadataProvider(ABC):
         pass
 
 
+def save_to_file(data, file_path):
+    json.dump(data, open(file_path, "w"))
+
+
 class LocalMetadataProvider(MetadataProvider):
     def __init__(self, sessions_directory: str):
         self.cached = None
         self.sessions_directory = sessions_directory
 
-        # Ensure the session directory exists; create it if not
         os.makedirs(sessions_directory, exist_ok=True)
 
-        # Load data from individual files and merge it into a single file
         self.load_and_merge()
 
     def load_and_merge(self):
-        # Load data from the single file (if it exists)
         single_file_path = os.path.join(self.sessions_directory, "metadata.json")
+        backup_path = single_file_path + ".bak"
         data_map = {}
 
         if os.path.exists(single_file_path):
-            with open(single_file_path, "r") as file:
-                data_map = json.load(file)
-
-        # Load data from individual files and prepare a list of files to be deleted
-        files_to_delete = []
+            try:
+                with open(single_file_path, "r") as file:
+                    data_map = json.load(file)
+            except Exception as e:
+                print(f"Error loading {single_file_path}: {e}")
+                if os.path.exists(backup_path):
+                    print("Loading from backup...")
+                    shutil.copy(backup_path, single_file_path)
+                    with open(single_file_path, "r") as backup_file:
+                        data_map = json.load(backup_file)
 
         for filename in os.listdir(self.sessions_directory):
             if filename.endswith(".json") and filename != "metadata.json":
@@ -43,27 +52,19 @@ class LocalMetadataProvider(MetadataProvider):
                     metadata_object = json.load(file)
 
                 data_map[metadata_object['city_id']] = metadata_object
-                files_to_delete.append(filename)  # Prepare to delete individual files
-
-        # Save the merged data back to the single file
-        with open(single_file_path, "w") as file:
-            json.dump(data_map, file, indent=4)
-
-        # Delete individual files
-        for filename in files_to_delete:
-            os.remove(os.path.join(self.sessions_directory, filename))
+                os.remove(os.path.join(self.sessions_directory, filename))
 
         self.cached = data_map
 
-    def filepath_for_event(self, event: dict) -> str:
-        return os.path.join(self.sessions_directory, f"{event['id']}_metadata.json")
+        save_to_file(data_map, single_file_path)  # Save merged data
+
+    def save(self, event: dict, metadata: dict):
+        event_id = str(event['id'])
+        event_file_path = os.path.join(self.sessions_directory, f"{event_id}.json")
+
+        save_to_file(metadata, event_file_path)
+
+        self.cached[event_id] = metadata
 
     def read(self, event: dict) -> dict:
         return self.cached.get(str(event['id']), {"city_id": event["id"], "status": "Pending", "notes": ""})
-
-    def save(self, event: dict, metadata: dict):
-        self.cached[event['id']] = metadata
-        single_file_path = os.path.join(self.sessions_directory, "metadata.json")
-
-        with open(single_file_path, "w") as file:
-            json.dump(self.cached, file)

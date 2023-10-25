@@ -2,6 +2,7 @@ from typing import List, Callable
 
 from event_data_providers import EventDataProvider
 from metadata_provider import MetadataProvider
+from time_utils import cast_and_convert_specific_dates
 
 
 def create_status_filter(status: str):
@@ -40,10 +41,12 @@ class Session:
         return self.get_filtered_events([create_status_filter("Pending")])
 
     def accepted_events(self):
-        return self.get_filtered_events([create_status_filter("Accepted")])
+        return self.get_filtered_events([create_status_filter("Submitted")])
 
     def __iter__(self, filters: List[Callable[[dict, dict], bool]] = None):
         for event in self.event_provider.read():
+            cast_and_convert_specific_dates(event)
+
             event_metadata = self.metadata_provider.read(event)
 
             if filters is None or all(filter_func(event, event_metadata) for filter_func in filters):

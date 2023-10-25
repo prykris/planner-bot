@@ -11,9 +11,13 @@ from selenium.webdriver.support.wait import WebDriverWait
 from language import Language
 from selenium_buff import paste_content
 from prompts import confirm
+from tabulate import tabulate
 from xpath_map import LOGIN_EMAIL_INPUT, LOGIN_PASSWORD_INPUT, LOGIN_BUTTON, ACCEPT_COOKIES_BUTTON, TIME_INPUT, \
     TIME_END_INPUT, IN_PERSON_OPTION, VISIBILITY_DROPDOWN, EVENT_DETAILS_TEXTAREA, EVENT_NAME_INPUT, DATE_INPUT, \
     DATE_END_INPUT, END_DATE_BUTTON
+
+from events import name, details
+from resource import select_random_image
 
 
 class FacebookControls:
@@ -21,6 +25,7 @@ class FacebookControls:
         self.driver = driver
         self.credentials = credentials
         self.language = language
+        self.loggedIn = False
         pass
 
     def enter_event(self, event: dict):
@@ -90,6 +95,8 @@ class FacebookControls:
                 self.accept_cookies()
                 time.sleep(1)
 
+        self.loggedIn = True
+
         return True
 
     def open_event_creation_form(self) -> None:
@@ -154,7 +161,7 @@ class FacebookControls:
         in_person_option_element.click()
 
     def upload_picture(self, image_path: str) -> None:
-        file_input = WebDriverWait(self, self.driver, 10).until(
+        file_input = WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.XPATH, "//input[@type='file']"))
         )
 
@@ -197,3 +204,102 @@ class FacebookControls:
         WebDriverWait(self.driver, 3).until(
             EC.element_to_be_clickable((By.XPATH, END_DATE_BUTTON))
         ).click()
+
+    def _wait_for_event_form(self):
+        try:
+            WebDriverWait(self.driver, 1).until(EC.alert_is_present())
+
+            self.driver.switch_to.alert.accept()
+        except TimeoutException:
+            pass
+
+        try:
+            WebDriverWait(self.driver, 60).until(
+                EC.url_contains('facebook.com/events/create')
+            )
+        except TimeoutException:
+            raise Exception('Event form not loaded within 60 seconds.')
+
+    def create_event(self, event: dict, metadata: dict) -> None:
+        self.open_event_creation_form()
+        self._wait_for_event_form()
+
+        event_name = name(event)
+        event_details = details(event)
+
+        metadata['event_name'] = event_name
+        metadata['event_details'] = event_details
+        metadata['image'] = select_random_image('../images')
+
+        print(f'Izveidojam pasākumu pilsētai {event["city_ascii"]}, {event["admin_name"]} (ID: {event["id"]})...')
+
+        print(tabulate([
+            ["Platums", "Garums", event['timezone'], "Europe/Riga", "Iedzīvotāju skaits"],
+            [
+                event['latitude'], event['longitude'], event['partial_begin'], event['partial_begin_current'],
+                event['population']
+            ],
+            [
+                "", "", event['partial_end'], event['partial_end_current'], ""
+            ]
+        ], headers="firstrow", tablefmt="pipe"))
+
+        try:
+            self.enter_event_name(event_name)
+        except Exception:
+            print('Notika negaidīta kļūda ievadot pasākuma nosaukumu.')
+
+        try:
+            self.enter_event_details(event_details)
+        except Exception:
+            print('Notika negaidīta kļūda ievadot pasākuma tekstu.')
+
+        try:
+            self.enter_date(event, False)
+        except Exception:
+            print('Notika negaidīta kļūda ievadot pasākuma sākuma datumu.')
+
+        try:
+            self.enter_time(event, False)
+        except:
+            print('Notika negaidīta kļūda ievadot pasākuma sākuma laiku.')
+
+        try:
+            self.add_end_date()
+        except:
+            print('Notika negaidīta kļūda pievienojot pasākumam beigu datumu.')
+
+        try:
+            self.enter_date(event, True)
+        except:
+            print('Notika negaidīta kļūda ievadot pasākuma beigu datumu.')
+
+        try:
+            self.enter_time(event, True)
+        except:
+            print('Notika negaidīta kļūda ievadot pasākuma beigu laiku.')
+
+        try:
+            self.enter_location(event['city_ascii'], event['admin_name'])
+        except:
+            print('Notika kļūda ievadot pasākuma vietu.')
+
+        try:
+            if metadata['image'] is not None:
+                self.upload_picture(metadata['image'])
+            else:
+                print('No image selected.')
+        except Exception as e:
+            print('Notika kļūda ievadot pasākuma attēlu.', e)
+
+        try:
+            # Find the element with the specified selector
+            element = self.driver.find_element(
+                By.CSS_SELECTOR,
+                "span.x1lliihq.x6ikm8r.x10wlt62.x1n2onr6.xlyipyv.xuxw1ft.x1120s5i"
+            )
+
+            # Change the innerHTML of the element
+            self.driver.execute_script('arguments[0].innerHTML = "Pasākums ievadīts! Gatavs turpināt";', element)
+        except Exception as e:
+            print("Maza kļūme mainot formas titulu:", str(e))

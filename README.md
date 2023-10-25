@@ -1,18 +1,11 @@
-# Chirp-Bot 🐦
+# Planner-Bot for Facebook
 
-Automate personalized Twitter responses with Chirp-Bot—a Python-based bot leveraging the Selenium framework and TweetGPT Chrome Extension. Perfect for customer service, engagement, or just for fun!
-
-## Features
-
-- Automated Twitter replies
-- Easy to configure
-- Built with Selenium and the TweetGPT Chrome Extension
+Creates solar eclipse events
 
 ## Prerequisites
 
 - Python 3.x
-- Google Chrome (Version 94)
-- ChromeDriver (Version 94.0.4606.41)
+- Google Chrome (Version any)
 
 ## Setup
 
@@ -37,9 +30,7 @@ pip install -r requirements.txt
 
 ### ChromeDriver
 
-This repository includes `chromedriver.exe` which is compatible with Chrome Version 94 on Windows.
-
-⚠️ **Note**: The current version of ChromeDriver is 94.0.4606.41. If you have a different version of Chrome, you may need to download the corresponding ChromeDriver from the [official site](https://sites.google.com/a/chromium.org/chromedriver/downloads).
+No need to worry about the chrome drivers, they will be installed automatically.
 
 ### Configuration
 

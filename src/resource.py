@@ -1,3 +1,8 @@
+import os
+from random import choice
+from typing import Optional
+
+
 def select_random_image(directory: str) -> Optional[str]:
     # Convert the directory path to an absolute path
     directory = os.path.abspath(directory)

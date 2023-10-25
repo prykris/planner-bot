@@ -1,5 +1,5 @@
 from prompts import select_language
-from controls import FacebookControls
+from facebook.facebook_controls import FacebookControls
 from storage import load_credentials, save_credentials
 
 
